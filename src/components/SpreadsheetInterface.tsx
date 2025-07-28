@@ -1,9 +1,10 @@
-// src/components/SpreadsheetInterface.tsx
+// src/components/SpreadsheetInterface.tsx (updated)
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import SpreadsheetToolbar from './SpreadsheetToolbar';
 import SpreadsheetGrid from './SpreadsheetGrid';
 import CommentPanel from './CommentPanel';
+import UserPresenceIndicator from './UserPresenceIndicator';
 import { isMobileDevice } from '../utils/stealth';
 
 const SpreadsheetInterface: React.FC = () => {
@@ -86,6 +87,7 @@ const SpreadsheetInterface: React.FC = () => {
             ? `${activeCell.col}${activeCell.row}` 
             : 'Ready'}
         </div>
+        <UserPresenceIndicator />
       </div>
     </div>
   );

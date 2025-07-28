@@ -1,6 +1,7 @@
-// src/components/SpreadsheetToolbar.tsx
-import React from 'react';
+// src/components/SpreadsheetToolbar.tsx (updated)
+import React, { useState } from 'react';
 import { isMobileDevice } from '../utils/stealth';
+import FileSettingsPanel from './FileSettingPanel';
 
 interface SpreadsheetToolbarProps {
   onToggleComments: () => void;
@@ -18,51 +19,64 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
   roomId
 }) => {
   const isMobile = isMobileDevice();
+  const [showSettings, setShowSettings] = useState(false);
   
   return (
-    <div className="spreadsheet-toolbar">
-      <div className="toolbar-left">
-        <div className="toolbar-title">
-          Budget Tracker - Q3 2025
-          {roomId && <span className="file-id">ID: {roomId.substring(0, 6)}...</span>}
+    <>
+      <div className="spreadsheet-toolbar">
+        <div className="toolbar-left">
+          <div className="toolbar-title">
+            Budget Tracker - Q3 2025
+          </div>
         </div>
-      </div>
-      
-      {!isMobile && (
-        <div className="toolbar-center">
-          <button className="toolbar-button">File</button>
-          <button className="toolbar-button">Edit</button>
-          <button className="toolbar-button">View</button>
-          <button className="toolbar-button">Insert</button>
-          <button className="toolbar-button">Format</button>
-          <button className="toolbar-button">Data</button>
-          <button className="toolbar-button">Tools</button>
-          <button className="toolbar-button">Help</button>
-        </div>
-      )}
-      
-      <div className="toolbar-right">
-        <button 
-          className={`toolbar-button comments-button ${hasNewMessages ? 'has-updates' : ''}`}
-          onClick={onToggleComments}
-          title={isCommentsActive ? "Hide Comments" : "Show Comments"}
-        >
-          {isCommentsActive ? "Hide Comments" : "Comments"}
-          {hasNewMessages && <span className="notification-dot"></span>}
-        </button>
         
-        <button 
-          className="toolbar-button save-button"
-          onClick={() => {
-            if (confirm("Save and close this spreadsheet?")) {
-              onLogout();
-            }
-          }}
-        >
-          Save & Close
-        </button>
+        {!isMobile && (
+          <div className="toolbar-center">
+            <button className="toolbar-button">File</button>
+            <button className="toolbar-button">Edit</button>
+            <button className="toolbar-button">View</button>
+            <button className="toolbar-button">Insert</button>
+            <button className="toolbar-button">Format</button>
+            <button className="toolbar-button">Data</button>
+            <button className="toolbar-button">Tools</button>
+            <button className="toolbar-button">Help</button>
+          </div>
+        )}
+        
+        <div className="toolbar-right">
+          <button 
+            className={`toolbar-button comments-button ${hasNewMessages ? 'has-updates' : ''}`}
+            onClick={onToggleComments}
+            title={isCommentsActive ? "Hide Comments" : "Show Comments"}
+          >
+            {isCommentsActive ? "Hide Comments" : "Comments"}
+            {hasNewMessages && <span className="notification-dot"></span>}
+          </button>
+          
+          <button 
+            className="toolbar-button settings-button"
+            onClick={() => setShowSettings(true)}
+          >
+            Settings
+          </button>
+          
+          <button 
+            className="toolbar-button save-button"
+            onClick={() => {
+              if (confirm("Save and close this spreadsheet?")) {
+                onLogout();
+              }
+            }}
+          >
+            Save & Close
+          </button>
+        </div>
       </div>
-    </div>
+      
+      {showSettings && (
+        <FileSettingsPanel onClose={() => setShowSettings(false)} />
+      )}
+    </>
   );
 };
 

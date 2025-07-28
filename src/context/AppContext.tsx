@@ -1,12 +1,13 @@
 // src/context/AppContext.tsx
 import React, { createContext, useContext, type ReactNode, useState, useEffect } from 'react';
-import { db, ref, onValue, push, set } from '../firebase';
+import { db, ref, onValue, push, set, remove, onDisconnect } from '../firebase';
 import { encryptMessage, decryptMessage } from '../utils/encryption';
 
 interface AppContextType {
   isAuthenticated: boolean;
   sharedKey: string;
   roomId: string | null;
+  userIdentifier: string;
   loading: boolean;
   login: (key: string, roomId: string, identifier: string, isCreating: boolean) => void;
   logout: () => void;
@@ -21,6 +22,7 @@ interface AppContextType {
   toggleCellNote: (row: number, col: string) => void;
   hasNewMessages: boolean;
   markMessagesAsSeen: () => void;
+  clearMessages: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -143,7 +145,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
   
+  // Track user presence
+  useEffect(() => {
+    if (!isAuthenticated || !roomId || !userIdentifier) return;
+    
+    // Create a presence reference for this user
+    const presenceRef = ref(db, `presence/${roomId}/${userIdentifier}`);
+    
+    // Set user as online
+    set(presenceRef, {
+      online: true,
+      lastSeen: Date.now()
+    });
+    
+    // Remove presence when disconnected
+    onDisconnect(presenceRef).remove();
+    
+    return () => {
+      // Clean up presence when component unmounts
+      remove(presenceRef).catch(error => {
+        console.error('Error removing presence:', error);
+      });
+    };
+  }, [isAuthenticated, roomId, userIdentifier]);
+
   const logout = () => {
+    // Clean up presence before logging out
+    if (roomId && userIdentifier) {
+      const presenceRef = ref(db, `presence/${roomId}/${userIdentifier}`);
+      remove(presenceRef).catch(error => {
+        console.error('Error removing presence on logout:', error);
+      });
+    }
+    
     setSharedKey('');
     setRoomId(null);
     setUserIdentifier('');
@@ -213,6 +247,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     }));
   };
+
+  const clearMessages = async (): Promise<void> => {
+    if (!roomId) return;
+    
+    try {
+      const messagesRef = ref(db, `messages/${roomId}`);
+      await set(messagesRef, null);
+      return;
+    } catch (err) {
+      console.error('Error clearing messages:', err);
+      throw err;
+    }
+  };
   
   const toggleCellNote = (row: number, col: string) => {
     setSpreadsheetData(prevData => ({
@@ -231,6 +278,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isAuthenticated,
     sharedKey,
     roomId,
+    userIdentifier,
     loading,
     login,
     logout,
@@ -238,14 +286,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     sendMessage,
     decryptMessageContent,
     chatLoading,
-    userIdentifier,
     activeCell,
     setActiveCell,
     spreadsheetData,
     updateCell,
     toggleCellNote,
     hasNewMessages,
-    markMessagesAsSeen
+    markMessagesAsSeen,
+    clearMessages
   };
   
   return (
