@@ -1,9 +1,9 @@
 {
-    "rules": {
-      ".read": true,
-      ".write": true,
-      "messages": {
-        ".indexOn": ["ttl", "timestamps"]
-      }
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "messages": {
+      ".indexOn": ["ttl", "timestamp"]
     }
   }
+}

@@ -7,7 +7,6 @@ import {
   push, 
   remove, 
   onDisconnect, 
-  type DatabaseReference 
 } from 'firebase/database';
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,

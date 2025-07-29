@@ -1,6 +1,6 @@
-// src/components/CommentPanel.tsx (fixed version)
+// src/components/CommentPanel.tsx (simplified)
 import React, { useState, useEffect, useRef } from 'react';
-import { disguiseMessage, isSecretTrigger, setupLongPressDetection, isMobileDevice } from '../utils/stealth';
+import { disguiseMessage } from '../utils/stealth';
 
 interface CommentPanelProps {
   messages: any[];
@@ -22,9 +22,6 @@ const CommentPanel: React.FC<CommentPanelProps> = ({
   const [showRealMessages, setShowRealMessages] = useState(false);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const isMobile = isMobileDevice();
   
   // Decrypt messages when they change
   useEffect(() => {
@@ -58,50 +55,8 @@ const CommentPanel: React.FC<CommentPanelProps> = ({
     scrollToBottom();
   }, [decryptedMessages]);
   
-  // Setup long press for mobile
-  useEffect(() => {
-    if (!isMobile || !headerRef.current || !messagesContainerRef.current) return;
-    
-    // Setup long press on header
-    const cleanupHeader = setupLongPressDetection(
-      headerRef.current,
-      () => setShowRealMessages(!showRealMessages)
-    );
-    
-    // Setup long press on messages container
-    const cleanupMessages = setupLongPressDetection(
-      messagesContainerRef.current,
-      () => setShowRealMessages(!showRealMessages)
-    );
-    
-    return () => {
-      cleanupHeader();
-      cleanupMessages();
-    };
-  }, [showRealMessages, isMobile]);
-  
-  // Handle Escape key to hide real messages
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showRealMessages) {
-        setShowRealMessages(false);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showRealMessages]);
-  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-  
-  const toggleRealMessages = (e: React.MouseEvent) => {
-    if (isSecretTrigger(e)) {
-      setShowRealMessages(!showRealMessages);
-    }
   };
   
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -121,45 +76,30 @@ const CommentPanel: React.FC<CommentPanelProps> = ({
     setSending(false);
   };
   
-  const getCellLabel = () => {
-    if (!activeCell) return 'Cell';
-    return `Cell ${activeCell.col}${activeCell.row}`;
-  };
-  
   return (
     <div className="comment-panel">
-      <div 
-        className="comment-header" 
-        onClick={toggleRealMessages}
-        ref={headerRef}
-      >
-        <h3>{getCellLabel()} Comments</h3>
-        {showRealMessages && (
-          <div className="secure-mode-indicator">Secure Mode</div>
-        )}
-        <div className="comment-tools">
-          <button className="tool-button">Filter</button>
-          <button className="tool-button">Sort</button>
-        </div>
+      <div className="comment-header">
+        <h3>Comments</h3>
+        <button 
+          className={`secure-toggle-button ${showRealMessages ? 'active' : ''}`}
+          onClick={() => setShowRealMessages(!showRealMessages)}
+        >
+          {showRealMessages ? "Less Info" : "More Info"}
+        </button>
       </div>
       
-      <div 
-        className="comment-list" 
-        ref={messagesContainerRef}
-      >
+      <div className="comment-list">
         {loading ? (
           <div className="loading-comments">Loading comments...</div>
         ) : decryptedMessages.length === 0 ? (
           <div className="no-comments">
-            <p>No comments for this cell.</p>
-            <p className="comment-help">Comments help track changes and decisions.</p>
+            <p>No comments yet.</p>
           </div>
         ) : (
           decryptedMessages.map((msg) => (
             <div 
               key={msg.id} 
               className={`comment-item ${showRealMessages ? 'real-comment' : 'fake-comment'}`}
-              onClick={toggleRealMessages}
             >
               <div className="comment-metadata">
                 <span className="comment-author">{msg.sender || 'User'}</span>
@@ -170,10 +110,6 @@ const CommentPanel: React.FC<CommentPanelProps> = ({
                   ? msg.decryptedContent 
                   : disguiseMessage(msg.decryptedContent)}
               </div>
-              <div className="comment-actions">
-                <button className="comment-action">Reply</button>
-                <button className="comment-action">Resolve</button>
-              </div>
             </div>
           ))
         )}
@@ -182,13 +118,12 @@ const CommentPanel: React.FC<CommentPanelProps> = ({
       
       <div className="comment-form-container">
         <form className="comment-form" onSubmit={handleSendMessage}>
-          <div className="comment-input-label">Add comment:</div>
           <textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={showRealMessages ? "Type secure message..." : "Add a comment..."}
             disabled={sending}
-            className={`comment-input ${showRealMessages ? 'secure-input' : ''}`}
+            className="comment-input"
             rows={2}
           />
           <div className="comment-form-actions">
@@ -197,14 +132,14 @@ const CommentPanel: React.FC<CommentPanelProps> = ({
               className="cancel-button"
               onClick={() => setNewMessage('')}
             >
-              Cancel
+              Clear
             </button>
             <button 
               type="submit" 
               disabled={sending || !newMessage.trim()}
               className="submit-button"
             >
-              {sending ? 'Submitting...' : 'Comment'}
+              {sending ? 'Sending...' : 'Send'}
             </button>
           </div>
         </form>

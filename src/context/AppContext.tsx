@@ -1,5 +1,5 @@
 // src/context/AppContext.tsx
-import React, { createContext, useContext, type ReactNode, useState, useEffect } from 'react';
+import { createContext, useContext, type ReactNode, useState, useEffect } from 'react';
 import { db, ref, onValue, push, set, remove, onDisconnect } from '../firebase';
 import { encryptMessage, decryptMessage } from '../utils/encryption';
 

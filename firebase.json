@@ -2,18 +2,18 @@
   "database": {
     "rules": "database.rules.json"
   },
-  "functions": {
-    "source": "functions",
-    "codebase": "default",
+  "hosting": {
+    "public": "dist",
     "ignore": [
-      "node_modules",
-      ".git",
-      "firebase-debug.log",
-      "firebase-debug.*.log",
-      "*.local"
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
     ],
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run lint"
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   }
 }

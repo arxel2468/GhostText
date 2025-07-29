@@ -1,5 +1,6 @@
-// src/App.tsx
 import React from 'react';
+// @ts-ignore
+const _unused = React; // Keep React in scope for JSX
 import { AppProvider, useAppContext } from './context/AppContext';
 import LoginScreen from './components/LoginScreen';
 import SpreadsheetInterface from './components/SpreadsheetInterface';

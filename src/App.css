@@ -835,3 +835,125 @@ body {
     font-size: 16px; /* Prevent iOS zoom on focus */
   }
 }
+
+/* Mobile-specific fixes */
+@media (max-width: 768px) {
+  /* Make the comment panel take up more space */
+  .spreadsheet-interface.mobile .comment-panel {
+    height: 60%;
+    min-height: 300px;
+    max-height: 70vh;
+  }
+  
+  /* Ensure the comment form is always visible */
+  .comment-form-container {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    z-index: 10;
+  }
+  
+  /* Make buttons larger and more tappable */
+  .submit-button, .cancel-button {
+    min-height: 44px;
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+  
+  /* Ensure the toolbar is always visible */
+  .spreadsheet-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  /* Make the spreadsheet grid scrollable */
+  .spreadsheet-grid {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Add to App.css */
+
+/* Ensure the secure toggle button is clear and visible */
+.secure-toggle-button {
+  background-color: #f1f3f4;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.secure-toggle-button.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Fix mobile layout issues */
+@media (max-width: 768px) {
+  /* Full height app container */
+  .app, .spreadsheet-interface {
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+  }
+  
+  /* Make sure the main content area scrolls properly */
+  .main-content {
+    height: calc(100vh - 50px); /* Subtract toolbar height */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Ensure the spreadsheet grid is scrollable */
+  .spreadsheet-grid {
+    flex: 1;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Make the comment panel take appropriate space */
+  .comment-panel {
+    height: 60%;
+    min-height: 300px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Make the comment list scrollable */
+  .comment-list {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px;
+  }
+  
+  /* Ensure the comment form stays at the bottom */
+  .comment-form-container {
+    padding: 10px;
+    background: white;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  /* Make buttons more tappable */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Ensure text inputs are large enough */
+  input, textarea {
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: 10px;
+  }
+}

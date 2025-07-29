@@ -1,11 +1,9 @@
-// src/components/SpreadsheetInterface.tsx (updated)
+// src/components/SpreadsheetInterface.tsx (improved)
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import SpreadsheetToolbar from './SpreadsheetToolbar';
 import SpreadsheetGrid from './SpreadsheetGrid';
 import CommentPanel from './CommentPanel';
-import UserPresenceIndicator from './UserPresenceIndicator';
-import { isMobileDevice } from '../utils/stealth';
 
 const SpreadsheetInterface: React.FC = () => {
   const { 
@@ -21,11 +19,11 @@ const SpreadsheetInterface: React.FC = () => {
     toggleCellNote,
     hasNewMessages,
     markMessagesAsSeen,
-    roomId
+    clearMessages
   } = useAppContext();
   
   const [isCommentsActive, setIsCommentsActive] = useState(false);
-  const isMobile = isMobileDevice();
+  const isMobile = window.innerWidth <= 768;
   
   // Mark messages as seen when comments panel is opened
   useEffect(() => {
@@ -33,13 +31,6 @@ const SpreadsheetInterface: React.FC = () => {
       markMessagesAsSeen();
     }
   }, [isCommentsActive, markMessagesAsSeen]);
-  
-  // On mobile, automatically show comments when there are new messages
-  useEffect(() => {
-    if (isMobile && hasNewMessages && !isCommentsActive) {
-      setIsCommentsActive(true);
-    }
-  }, [hasNewMessages, isCommentsActive, isMobile]);
   
   const toggleCommentsMode = () => {
     setIsCommentsActive(!isCommentsActive);
@@ -58,17 +49,17 @@ const SpreadsheetInterface: React.FC = () => {
         isCommentsActive={isCommentsActive}
         onLogout={logout}
         hasNewMessages={hasNewMessages}
-        roomId={roomId}
       />
       
       <div className="main-content">
-        <SpreadsheetGrid 
-          data={spreadsheetData} 
-          onCellDoubleClick={handleCellDoubleClick}
-          activeCell={activeCell}
-          onCellUpdate={updateCell}
-          isMobile={isMobile}
-        />
+        {(!isCommentsActive || !isMobile) && (
+          <SpreadsheetGrid 
+            data={spreadsheetData} 
+            onCellDoubleClick={handleCellDoubleClick}
+            activeCell={activeCell}
+            onCellUpdate={updateCell}
+          />
+        )}
         
         {isCommentsActive && (
           <CommentPanel 
@@ -79,15 +70,6 @@ const SpreadsheetInterface: React.FC = () => {
             activeCell={activeCell}
           />
         )}
-      </div>
-      
-      <div className="spreadsheet-footer">
-        <div className="status-bar">
-          {activeCell 
-            ? `${activeCell.col}${activeCell.row}` 
-            : 'Ready'}
-        </div>
-        <UserPresenceIndicator />
       </div>
     </div>
   );
